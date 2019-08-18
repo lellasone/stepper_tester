@@ -1,0 +1,8 @@
+Removed Pin From Net: NetName=NRESET Pin=U2-25
+Removed Pin From Net: NetName=NSLEEP Pin=U2-26
+Added Pin To Net: NetName=NSLEEP Pin=U2-25
+Added Pin To Net: NetName=NRESET Pin=U2-26
+Added Member To Class: ClassName=Top Level Member=Component C? Cap
+Added Member To Class: ClassName=Top Level Member=Component C? Cap
+Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi
+Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi

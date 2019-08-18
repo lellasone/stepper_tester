@@ -1,0 +1,34 @@
+Removed Pin From Net: NetName=VM Pin=C2-1
+Removed Pin From Net: NetName=GND Pin=C2-2
+Removed Pin From Net: NetName=VM Pin=C4-1
+Removed Pin From Net: NetName=GND Pin=C4-2
+Removed Pin From Net: NetName=VM Pin=C12-1
+Removed Pin From Net: NetName=GND Pin=C12-2
+Removed Pin From Net: NetName=VM Pin=C13-1
+Removed Pin From Net: NetName=GND Pin=C13-2
+Removed Member From Class: ClassName=Designator Member=C2
+Removed Member From Class: ClassName=Designator Member=C4
+Removed Member From Class: ClassName=Top Level Member=C12
+Removed Member From Class: ClassName=Top Level Member=C13
+Added Component: Designator=C?(PCAP_10x10-ELECT)
+Add component. Clean all parameters for all variants
+Add component (AddParameter): Name = "Built_By"; Value = "EMA_UL_Team"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Copyright"; Value = "Copyright (C) 2018 Accelerated Designs. All rights reserved"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Manufacturer_Part_Number"; Value = "UCD1J101MNL1GS"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "RefDes"; Value = "RefDes"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Type"; Value = "DEV"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = "100uf"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Vendor"; Value = "Nichicon"; VariantName = "[No Variations]"
+Added Component: Designator=P6(HDR1X2)
+Add component. Clean all parameters for all variants
+Add component (AddParameter): Name = "LatestRevisionDate"; Value = "17-Jul-2002"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "LatestRevisionNote"; Value = "Re-released for DXP Platform."; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Publisher"; Value = "Altium Limited"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=VM Pin=C?-1
+Added Pin To Net: NetName=GND Pin=C?-2
+Added Pin To Net: NetName=GND Pin=P6-1
+Added Pin To Net: NetName=VM Pin=P6-2
+Added Member To Class: ClassName=Designator Member=Component C? Part Number: UCD1J101MNL1GS
+Added Member To Class: ClassName=Top Level Member=Component P6 Header 2
+Added Room: Name=Designator
+Added Room: Name=Top Level

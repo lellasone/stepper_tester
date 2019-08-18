@@ -1,0 +1,7 @@
+Change Component Designator: OldDesignator=C? NewDesignator=C13
+Added Pin To Net: NetName=NetP5_2 Pin=U2-19
+Added Net: Name=NetP5_2
+Added Pin To Net: NetName=NetP5_5 Pin=U2-22
+Added Net: Name=NetP5_5
+Added Room: Name=Designator
+Added Room: Name=Top Level

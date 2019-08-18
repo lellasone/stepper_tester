@@ -1,0 +1,18 @@
+Change Component Designator: OldDesignator=C? NewDesignator=C8
+Change Component Designator: OldDesignator=C? NewDesignator=C9
+Change Component Designator: OldDesignator=C? NewDesignator=C10
+Change Component Designator: OldDesignator=C? NewDesignator=C11
+Change Component Designator: OldDesignator=C? NewDesignator=C12
+Change Component Designator: OldDesignator=P? NewDesignator=P4
+Change Component Designator: OldDesignator=R? NewDesignator=R3
+Change Component Designator: OldDesignator=VR? NewDesignator=VR1
+Change Component Designator: OldDesignator=Y? NewDesignator=Y1
+Change Net Name : Old Net Name=NetC?_2 New Net Name=NetC8_2
+Added Pin To Net: NetName=NetC9_2 Pin=C9-2
+Added Pin To Net: NetName=NetC9_2 Pin=U2-7
+Added Pin To Net: NetName=NetC9_2 Pin=Y1-2
+Added Net: Name=NetC9_2
+Added Member To Class: ClassName=Top Level Member=Component C8 Cap
+Added Member To Class: ClassName=Top Level Member=Component C10 Cap Semi
+Added Member To Class: ClassName=Top Level Member=Component C11 Cap Semi
+Added Member To Class: ClassName=Top Level Member=Component C12 Cap Semi

@@ -1,0 +1,17 @@
+Added Component: Designator=C2(PCAP_10x10-ELECT)
+Add component. Clean all parameters for all variants
+Add component (AddParameter): Name = "Built_By"; Value = "EMA_UL_Team"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Copyright"; Value = "Copyright (C) 2018 Accelerated Designs. All rights reserved"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Manufacturer_Part_Number"; Value = "UCD1J101MNL1GS"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "RefDes"; Value = "RefDes"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Type"; Value = "DEV"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = "100uf"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Vendor"; Value = "Nichicon"; VariantName = "[No Variations]"
+Added Component: Designator=P2(xt60)
+Add component. Clean all parameters for all variants
+Added Pin To Net: NetName=VM Pin=C2-1
+Added Pin To Net: NetName=GND Pin=C2-2
+Added Pin To Net: NetName=GND Pin=P2-1
+Added Pin To Net: NetName=VM Pin=P2-2
+Added Member To Class: ClassName=Designator Member=Component C2 Part Number: UCD1J101MNL1GS
+Added Member To Class: ClassName=Top Level Member=Component P2 XT60
