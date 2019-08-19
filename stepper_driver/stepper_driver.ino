@@ -27,6 +27,7 @@ drv8825 motor = drv8825();
 void setup() {
   // put your setup code here, to run once:
   motor.setup();
+  motor.enable(true); 
 }
 
 void loop() {

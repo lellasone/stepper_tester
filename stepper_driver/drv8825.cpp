@@ -38,7 +38,7 @@
 
 #define COUNT_STOP 65535 // value at which the counter stops completely
 
-int compare = 12;
+int compare = 0;
 /* 
  *  This function sets up the basic pins configuration for the device. 
  *  Once called, the drv8825 will be in a high-power mode, but will
@@ -73,7 +73,8 @@ void drv8825::setup(){
   TIMSK0 |= _BV(OCIE0A); 
 
   // Setup Timer 1.
-  
+  TCCR1A = 0; // we are not using compare pins. 
+  TCCR1B = 00000101; // here we set the pre-scaler. 
 }
 
 /*
@@ -120,6 +121,11 @@ void drv8825::set_current(int current){
  */
 void drv8825::set_enable(bool state){
   digitalWrite(PIN_ENABLE, !(state));
+}
+
+void drv8825::set_pps(int pps, bool forward){
+  compare = 12;
+  
 }
 
 SIGNAL(TIMER0_COMPA_vect)
