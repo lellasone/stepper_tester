@@ -20,17 +20,203 @@
  */
 
 
-#include "drv8825.h"
+#define PIN_TX     0
+#define PIN_RX     1
+#define PIN_STEP   8
+#define PIN_DIR    10
+#define PIN_RESET  A3 // reset device, optional. 
+#define PIN_SLEEP  A2 // dissables output, optional. 
+#define PIN_FAULT  A1 // should be pulled up. 
+#define PIN_DECAY  A0
+#define PIN_ENABLE 9
+#define PIN_HOME   A5 // should be pulled up. 
+#define PIN_VREF   3
+#define PIN_MODE0  7
+#define PIN_MODE1  6
+#define PIN_MODE2  5
+#define PIN_THROTTLE A7
+#define PIN_AUX A6
 
-drv8825 motor = drv8825();
+//defaults
+#define DEFAULT_MODE 0x02
+#define DEFAULT_CURRENT 3
+#define DEFAULT_DECAY HIGH
+#define DEFAULT_DIR false
+
+#define CURRENT_MIN 0
+#define CURRENT_MAX 2
+
+#define MODE_MIN 0x01
+#define MODE_MAX 0x07
+
+#define CURRENT_SENSE_RESISTOR 0.2
+
+#define DEADBAND_HALF 17
+#define DEADBAND_CENTER 500
+
+#define MIN_DELAY  500 // shortest time (in microseconds, between pulses)
+#define MAX_DELAY  10000    // longest time (in microseconds, between pulses)
+
+//set the scaling endpoints for the throttle joystick. 
+#define THROTTLE_MAX 974
+#define THROTTLE_MIN 50 
+int compare = 5;
+byte mode = DEFAULT_MODE;
 
 void setup() {
   // put your setup code here, to run once:
-  motor.setup();
-  motor.enable(true); 
+  set_pins();
+  set_enable(true);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  
+  static unsigned long timer = 0; 
+  int throttle = analogRead(PIN_THROTTLE); 
 
+  if(throttle > THROTTLE_MAX) throttle = THROTTLE_MAX;
+  if(throttle < THROTTLE_MIN) throttle = THROTTLE_MIN;
+  update_mode();
+  
+  if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
+    // put your main code here, to run repeatedly:
+    if(map(throttle, DEADBAND_CENTER, THROTTLE_MIN, MAX_DELAY, MIN_DELAY) <  micros() - timer){
+      digitalWrite(PIN_DIR, HIGH); 
+      step_motor();
+      timer = micros();
+    }
+  }
+  if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
+    // put your main code here, to run repeatedly:
+    if(map(throttle, DEADBAND_CENTER, THROTTLE_MAX, MAX_DELAY, MIN_DELAY) <  micros() - timer){
+      digitalWrite(PIN_DIR, LOW); 
+      step_motor();
+      timer = micros();
+    }
+  }
+  
+}
+void step_motor(){
+      digitalWrite(PIN_STEP, HIGH);
+      digitalWrite(PIN_TX, HIGH);
+      delayMicroseconds(20);
+      digitalWrite(PIN_STEP, LOW);
+      digitalWrite(PIN_TX, LOW);
+}
+/* 
+ *  This function sets up the basic pins configuration for the device. 
+ *  Once called, the drv8825 will be in a high-power mode, but will
+ *  have it's outputs dissabled. 
+ *  
+ *  Before sending step and direction inputs be sure to enable the device. 
+ */
+void set_pins(){
+
+  pinMode(PIN_FAULT, INPUT); 
+  pinMode(PIN_HOME, INPUT); 
+  pinMode(PIN_DECAY, OUTPUT);
+  pinMode(PIN_ENABLE, OUTPUT);//
+  pinMode(PIN_VREF, OUTPUT); //
+  pinMode(PIN_STEP, OUTPUT);
+  pinMode(PIN_DIR, OUTPUT);
+  pinMode(PIN_RESET, OUTPUT);//
+  pinMode(PIN_SLEEP, OUTPUT);//
+  pinMode(PIN_MODE0, OUTPUT);//
+  pinMode(PIN_MODE1, OUTPUT);//
+  pinMode(PIN_MODE2, OUTPUT);//
+  pinMode(PIN_TX, OUTPUT);
+  pinMode(PIN_RX, OUTPUT);
+ 
+  digitalWrite(PIN_RESET, HIGH); // dissable reset. 
+  digitalWrite(PIN_SLEEP, HIGH); 
+  digitalWrite(PIN_DIR, DEFAULT_DIR);
+
+  digitalWrite(PIN_RX, LOW); // so we have a gnd reference. 
+
+  set_enable(false);
+  set_mode(DEFAULT_MODE);
+  set_current(DEFAULT_CURRENT); 
+  digitalWrite(PIN_DECAY, DEFAULT_DECAY);
+
+  
+}
+
+/* 
+ *  This function handles incrimenting and decrimenting the 
+ *  microstepping level when the joystick is moved sideways. 
+ *  The joystick must return to it's neutral location before
+ *  another movement can be requested. 
+ */
+void update_mode(){
+  static bool flag = true;
+  int step_input = analogRead(PIN_AUX);
+  if(step_input > 800 && flag && mode > MODE_MIN){
+    mode--;
+    set_mode(mode);
+    flag = false;
+  }
+  if(step_input < 200 && flag && mode < MODE_MAX){
+    mode++;
+    set_mode(mode);
+    flag = false;
+  }
+  if(step_input > 400 && step_input < 600){
+    flag = true;
+  }
+}
+
+/*
+ * This function is used to set the micro-stepping mode of the 
+ * driver chip. It does so by setting the the three mode control
+ * pins on the DRV8825. There are 6 options avaliable
+ * corresponding to 1/1, 1/2, 1/4, 1/8, 1/16, 1/32 microstepping. 
+ * If the mode byte is larger than 5, it will be set to 5 before
+ * processing. 
+ * 
+ * args: 
+ *  mode - determins the microstepping level, values 0-5 correspond
+ *         to full through 1/32 microstepping. Values above 5 all
+ *         correspond to 1/32 microstepping. 
+ */
+void set_mode(byte mode){
+  if(mode > 5) mode = 5;
+  digitalWrite(PIN_MODE0, bitRead(mode, 0));
+  digitalWrite(PIN_MODE1, bitRead(mode, 1));
+  digitalWrite(PIN_MODE2, bitRead(mode, 2));
+}
+
+/* 
+ *  This function sets the vref gpio pin to correspond to the 
+ *  desired drive current. 
+ *  args: 
+ *    current - desired current setpoint in amps. 
+ */
+void set_current(int current){
+  if(current < CURRENT_MIN) current = 0; 
+  if(current > CURRENT_MAX) current = CURRENT_MAX; 
+
+  int voltage = current * 5 *CURRENT_SENSE_RESISTOR; 
+  int voltage_output = map(voltage, 0, 5, 0 , 255); 
+
+  analogWrite(PIN_VREF, 50); 
+}
+
+/* 
+ *  This function enables or dissables the output transistors of the chip. 
+ *  It needs to be called after setup, but before the device is used. 
+ *  args:
+ *    state - Boolean, if True device will be enabled, if false dissabled. 
+ */
+void set_enable(bool state){
+  digitalWrite(PIN_ENABLE, !(state));
+}
+
+/* 
+ *  args:
+ *    pps - 
+ *    args - if true then turn clockwise. 
+ */
+void set_pps(int pps, bool forward){
+  digitalWrite(PIN_DIR, !(forward));
+  compare = pps;
 }
