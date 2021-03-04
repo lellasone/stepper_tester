@@ -53,7 +53,7 @@
 
 #define CURRENT_SENSE_RESISTOR 0.2
 
-#define DEADBAND_HALF 17
+#define DEADBAND_HALF 19
 #define DEADBAND_CENTER 500
 
 #define MIN_DELAY  500 // shortest time (in microseconds, between pulses)
@@ -86,7 +86,6 @@ void loop() {
       step_motor();
       timer = micros();
     }
-    digitalWrite(PIN_LED, HIGH);
   }
   if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
     if(map(throttle, DEADBAND_CENTER, THROTTLE_MAX, MAX_DELAY, MIN_DELAY) <  micros() - timer){
@@ -94,11 +93,44 @@ void loop() {
       step_motor();
       timer = micros();
     }
-    digitalWrite(PIN_LED, LOW);
 
   }
+
+  show_mode();
   
 }
+
+/*
+ * This function should be called once per loop. It will
+ * blink the onboard LED according to the current microstepping
+ * level. 
+ */
+void show_mode(){
+  static int timer = 0;
+  static int count = 0;
+  static bool on = false;
+  int new_time = millis();
+  if (new_time - timer > 1000){
+    timer = new_time;
+    if(on){
+      digitalWrite(PIN_LED, LOW);
+      on = false;
+    } else {
+      if (count < mode * 2){
+        digitalWrite(PIN_LED, HIGH);
+        on = true;
+      }
+    }
+    count++;
+    if (count > MODE_MAX * 2){
+      count = 0;
+    }
+  }
+  
+
+  
+}
+
 void step_motor(){
       digitalWrite(PIN_STEP, HIGH);
       digitalWrite(PIN_TX, HIGH);
