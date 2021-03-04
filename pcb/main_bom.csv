@@ -1,0 +1,52 @@
+Comment,Designator,Footprint,LCSC
+100 nF,C1,Capacitor_SMD:C_0603_1608Metric,"C14663
+"
+0.1 uf,C10,Capacitor_SMD:C_0603_1608Metric,"C14663
+"
+0.22 uF,C11,Capacitor_SMD:C_0603_1608Metric,"C21120
+"
+100 uF,C13,Capacitor_SMD:CP_Elec_8x10,
+0.1 uF,"C2,C8,C12,C14,C15",Capacitor_SMD:C_0603_1608Metric,"C14663
+"
+10 nF,C3,Capacitor_SMD:C_0603_1608Metric,"C57112
+"
+22pF,"C4,C5",Capacitor_SMD:C_0603_1608Metric,"C1653
+"
+1uF,C6,Capacitor_SMD:C_0603_1608Metric,"C15849
+"
+2.2 uF,C7,Capacitor_SMD:C_0805_2012Metric,"C49217
+"
+0.022 uF,C9,Capacitor_SMD:C_0402_1005Metric,"C1532
+"
+D,D1,Diode_SMD:D_2010_5025Metric,"C412437
+"
+LED,D2,Diode_SMD:D_0603_1608Metric,"C84256
+"
+LED,"D3,D4",Diode_SMD:D_0805_2012Metric,"C2293
+"
+BATT +,J1,BANANA_CONN,
+Conn_02x03_Odd_Even,J2,Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical,
+Enable Jumper,J3,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal,
+TBL003-254-04GR-2OR,J4,footprints:header,
+BATT: -,J5,BANANA_CONN,
+10k,"R1,R7",Resistor_SMD:R_0603_1608Metric,"C22859
+"
+0.1,"R10,R11",Resistor_SMD:R_1206_3216Metric,"C25334
+"
+1.2k,"R2,R6",Resistor_SMD:R_0603_1608Metric,"C22765
+"
+510,"R3,R12",Resistor_SMD:R_0603_1608Metric,"C23193
+"
+1M,R5,Resistor_SMD:R_0603_1608Metric,"C22935
+"
+100k,"R8,R9",Resistor_SMD:R_0603_1608Metric,"C25803
+"
+JOYSTICK_SLIDE,S1,sparkfun_switches:JOYSTICK-PSP1000,
+SW_Push,SW1,Button_Switch_SMD:SW_SPST_TL3342,
+ATmega328P-AU,U1,Package_QFP:TQFP-32_7x7mm_P0.8mm,"C14877
+"
+LP2985-5.0,U2,Package_TO_SOT_SMD:SOT-23-5,
+TMC2208,U3,QFN28,"C115944
+"
+Crystal,Y1,Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm_HandSoldering,"C115962
+"

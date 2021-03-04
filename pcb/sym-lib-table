@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name TMC2208)(type Legacy)(uri /home/jake/dropbox/projects/Resorces/kicad/TMC2208/2020-11-06_01-46-21/2020-11-06_01-46-21.lib)(options "")(descr ""))
+  (lib (name general)(type Legacy)(uri /home/jake/dropbox/projects/Resorces/kicad/general.lib)(options "")(descr ""))
+)

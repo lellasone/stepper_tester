@@ -15,27 +15,29 @@
  *  cause a decrease. Note that the joystick must return to it's
  *  zero position before another command will be registered. 
  *  
- *  
+ *  Update: 3/3/2021: Changed pin-mapping to match new board.
+ *                    Program with pro-mini settings.
  *  Maintainer: Jake Ketchum
  */
 
 
-#define PIN_TX     0
-#define PIN_RX     1
-#define PIN_STEP   8
-#define PIN_DIR    10
-#define PIN_RESET  A3 // reset device, optional. 
-#define PIN_SLEEP  A2 // dissables output, optional. 
-#define PIN_FAULT  A1 // should be pulled up. 
-#define PIN_DECAY  A0
-#define PIN_ENABLE 9
-#define PIN_HOME   A5 // should be pulled up. 
+#define PIN_TX     -1
+#define PIN_RX     -1
+#define PIN_STEP   5
+#define PIN_DIR    6
+#define PIN_RESET  -1 // reset device, optional. (Not Used)
+#define PIN_SLEEP  -1 // dissables output, optional. (Not Used)
+#define PIN_FAULT  -1 // should be pulled up. (Not Used)
+#define PIN_DECAY  -1
+#define PIN_ENABLE 0
+#define PIN_HOME   -1 // should be pulled up. (Not Used)
 #define PIN_VREF   3
-#define PIN_MODE0  7
-#define PIN_MODE1  6
-#define PIN_MODE2  5
-#define PIN_THROTTLE A7
-#define PIN_AUX A6
+#define PIN_MODE0  1
+#define PIN_MODE1  2
+#define PIN_MODE2  -1 //(Not Used)
+#define PIN_THROTTLE A5
+#define PIN_AUX A4
+#define PIN_LED 8
 
 //defaults
 #define DEFAULT_MODE 0x02
@@ -46,8 +48,8 @@
 #define CURRENT_MIN 0
 #define CURRENT_MAX 2
 
-#define MODE_MIN 0x01
-#define MODE_MAX 0x07
+#define MODE_MIN 0x00
+#define MODE_MAX 0x03
 
 #define CURRENT_SENSE_RESISTOR 0.2
 
@@ -79,20 +81,21 @@ void loop() {
   update_mode();
   
   if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
-    // put your main code here, to run repeatedly:
     if(map(throttle, DEADBAND_CENTER, THROTTLE_MIN, MAX_DELAY, MIN_DELAY) <  micros() - timer){
       digitalWrite(PIN_DIR, HIGH); 
       step_motor();
       timer = micros();
     }
+    digitalWrite(PIN_LED, HIGH);
   }
   if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
-    // put your main code here, to run repeatedly:
     if(map(throttle, DEADBAND_CENTER, THROTTLE_MAX, MAX_DELAY, MIN_DELAY) <  micros() - timer){
       digitalWrite(PIN_DIR, LOW); 
       step_motor();
       timer = micros();
     }
+    digitalWrite(PIN_LED, LOW);
+
   }
   
 }

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name TMC2208)(type KiCad)(uri /home/jake/dropbox/projects/Resorces/kicad/TMC2208/2020-11-06_01-46-21/footprints.pretty)(options "")(descr ""))
+  (lib (name footprints)(type KiCad)(uri /home/jake/dropbox/projects/Resorces/kicad/TMC2208/2020-11-06_01-46-21/footprints.pretty)(options "")(descr ""))
+)
