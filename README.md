@@ -1,6 +1,8 @@
 # stepper_tester
 This was a quick one-off stepper tester board. This version uses a TMC2208 from Trinamic. 
 
+![board just after debug](post_debug.jpg)
+
 The idea for this version was to test out if the TMC2208 is really a drop in
 replacement for it's competetors in practice (spoiler: it is!). A few (very)
 minor improvements have been made to the code, but it actually ran with only

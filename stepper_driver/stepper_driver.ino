@@ -46,18 +46,18 @@
 #define DEFAULT_DIR false
 
 #define CURRENT_MIN 0
-#define CURRENT_MAX 2
+#define CURRENT_MAX 1.2
 
 #define MODE_MIN 0x00
 #define MODE_MAX 0x03
 
-#define CURRENT_SENSE_RESISTOR 0.2
+#define CURRENT_SENSE_RESISTOR 0.1
 
 #define DEADBAND_HALF 19
-#define DEADBAND_CENTER 500
+#define DEADBAND_CENTER 515
 
-#define MIN_DELAY  500 // shortest time (in microseconds, between pulses)
-#define MAX_DELAY  10000    // longest time (in microseconds, between pulses)
+#define MIN_DELAY  50 // shortest time (in microseconds, between pulses)
+#define MAX_DELAY  20000    // longest time (in microseconds, between pulses)
 
 //set the scaling endpoints for the throttle joystick. 
 #define THROTTLE_MAX 974
@@ -133,10 +133,10 @@ void show_mode(){
 
 void step_motor(){
       digitalWrite(PIN_STEP, HIGH);
-      digitalWrite(PIN_TX, HIGH);
-      delayMicroseconds(20);
+      //digitalWrite(PIN_TX, HIGH);
+      delayMicroseconds(5);
       digitalWrite(PIN_STEP, LOW);
-      digitalWrite(PIN_TX, LOW);
+      //digitalWrite(PIN_TX, LOW);
 }
 /* 
  *  This function sets up the basic pins configuration for the device. 
