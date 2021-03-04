@@ -1,7 +1,0 @@
-Added Pin To Net: NetName=MOSI Pin=P3-4
-Added Pin To Net: NetName=GND Pin=P3-6
-Change Net Name : Old Net Name=NetP2_2 New Net Name=VTG
-Added Member To Class: ClassName=Top Level Member=Component C? Cap
-Added Member To Class: ClassName=Top Level Member=Component C? Cap
-Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi
-Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi

@@ -1,8 +1,0 @@
-Removed Pin From Net: NetName=DIR Pin=U2-12
-Removed Pin From Net: NetName=STEP Pin=U2-14
-Added Pin To Net: NetName=STEP Pin=U2-12
-Added Pin To Net: NetName=DIR Pin=U2-14
-Added Member To Class: ClassName=Top Level Member=Component C? Cap
-Added Member To Class: ClassName=Top Level Member=Component C? Cap
-Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi
-Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi

@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=VCC Pin=C12-1
-Added Pin To Net: NetName=VM Pin=C12-1
-Added Room: Name=Designator
-Added Room: Name=Top Level

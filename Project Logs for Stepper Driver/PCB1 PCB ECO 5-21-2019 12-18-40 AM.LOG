@@ -1,8 +1,0 @@
-Removed Pin From Net: NetName=MODE 0 Pin=U2-9
-Removed Pin From Net: NetName=MODE 2 Pin=U2-11
-Added Pin To Net: NetName=MODE 2 Pin=U2-9
-Added Pin To Net: NetName=MODE 0 Pin=U2-11
-Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi
-Added Member To Class: ClassName=Top Level Member=Component C? Cap Semi
-Added Member To Class: ClassName=Top Level Member=Component C? Cap
-Added Member To Class: ClassName=Top Level Member=Component C? Cap
