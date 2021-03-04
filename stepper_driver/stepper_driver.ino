@@ -46,17 +46,17 @@
 #define DEFAULT_DIR false
 
 #define CURRENT_MIN 0
-#define CURRENT_MAX 1.2
+#define CURRENT_MAX 3
 
 #define MODE_MIN 0x00
 #define MODE_MAX 0x03
 
-#define CURRENT_SENSE_RESISTOR 0.1
+#define CURRENT_SENSE_RESISTOR 0.2
 
-#define DEADBAND_HALF 19
-#define DEADBAND_CENTER 515
+#define DEADBAND_HALF 20
+#define DEADBAND_CENTER 490
 
-#define MIN_DELAY  50 // shortest time (in microseconds, between pulses)
+#define MIN_DELAY  20 // shortest time (in microseconds, between pulses)
 #define MAX_DELAY  20000    // longest time (in microseconds, between pulses)
 
 //set the scaling endpoints for the throttle joystick. 
@@ -233,7 +233,7 @@ void set_current(int current){
   int voltage = current * 5 *CURRENT_SENSE_RESISTOR; 
   int voltage_output = map(voltage, 0, 5, 0 , 255); 
 
-  analogWrite(PIN_VREF, 50); 
+  analogWrite(PIN_VREF, voltage_output); 
 }
 
 /* 
