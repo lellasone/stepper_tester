@@ -20,3 +20,9 @@ tinyISP) with the fuse settings and pin mappings for a pro-mini.
 * Flick the joystick side to side to change the microstepping level. (faster to the left)
     * To read the current microstepping level, count the status LED's pulses.
 * To disable output, connect the jumper by the joystick.
+
+## Firmware Depends
+The sketch uses a few Arduino libraries (below) all of which can be 
+installed from within the Arduino IDE using the standard library tool.
+* PWM Freak - convenience functions for setting pwm devisor values. 
+* TIMER1 - convenience functions for timer interrupts
