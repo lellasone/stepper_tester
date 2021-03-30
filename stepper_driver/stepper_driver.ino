@@ -123,22 +123,13 @@ void poll_joystick()
     if(throttle < THROTTLE_MIN) throttle = THROTTLE_MIN;
   
     if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
-        int period = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MAX_PERIOD, MIN_PERIOD);
-        if (period > last_period + (1000000/PERIOD_POLL)*MAX_CHANGE) period = last_period + (1000000/PERIOD_POLL)*MAX_CHANGE;
-        if (period < last_period - (1000000/PERIOD_POLL)*MAX_CHANGE) period = last_period - (1000000/PERIOD_POLL)*MAX_CHANGE;
-        last_period = period;
-        Timer1.setPeriod(period);
-        digitalWrite(PIN_DIR, false); 
-        step_flag = true;
+      int period = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MAX_PERIOD, MIN_PERIOD);
+      set_step_period(period, false)
     }
     else if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
-        int period = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MAX_PERIOD, MIN_PERIOD);
-        if (period > last_period + (1000000/PERIOD_POLL)*MAX_CHANGE) period = last_period + (1000000/PERIOD_POLL)*MAX_CHANGE;
-        if (period < last_period - (1000000/PERIOD_POLL)*MAX_CHANGE) period = last_period - (1000000/PERIOD_POLL)*MAX_CHANGE;
-        last_period = period;
-        Timer1.setPeriod(period); 
-        digitalWrite(PIN_DIR, true); 
-        step_flag = true;
+      int period = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MAX_PERIOD, MIN_PERIOD);
+      set_step_period(period, true)
+
     }
     else {
       step_flag = false;
@@ -151,6 +142,23 @@ void poll_joystick()
   }
   count++;
 
+}
+
+/*
+ * This function sets the step waveform period and direction line. 
+ * It will enforce the maximum acceleration constraint. 
+ * args:
+ *    period - the delay between subsiquent step pules in microseconds.
+ *    forward - if true the motor will be sent forward. 
+ */
+set_step_period(double period, bool forward){
+  const double max_accel = (max_del_omega/60)*mod_mult()*STEPS_PER_REV*(last_period*last_period)/(1000000)
+  if (period > last_period + max_accel) period = last_period + max_accel;
+  if (period < last_period - max_accel) period = last_period - max_accel;
+  last_period = period;
+  Timer1.setPeriod(period); 
+  digitalWrite(PIN_DIR, true); 
+  step_flag = forward;
 }
 /*
  * This function should be called twice per second. It will
