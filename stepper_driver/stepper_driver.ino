@@ -43,7 +43,7 @@
 
 // Chip configuration defaults
 #define DEFAULT_MODE 0x02
-#define DEFAULT_CURRENT 0.5
+#define DEFAULT_CURRENT 1
 #define DEFAULT_DECAY HIGH
 #define DEFAULT_DIR false
 
@@ -53,7 +53,7 @@
 #define MODE_MIN 0x00
 #define MODE_MAX 0x03
 
-#define CURRENT_SENSE_RESISTOR 0.1
+#define CURRENT_SENSE_RESISTOR 0.5
 
 #define DEADBAND_HALF 20
 #define DEADBAND_CENTER 490
@@ -65,10 +65,12 @@
 #define THROTTLE_MIN 235 
 // Set the scaling endpoints for step frequency as 1/2
 // period in microseconds. (so 50 would be 10khz)
-#define MIN_PERIOD  50
+#define MIN_PERIOD  100
 #define MAX_PERIOD  10000  
-#define MAX_CHANGE  50// maximum speed at which the period can be changed
-                   // in microseconds of period per second of time.
+#define MAX_ACCEL   25 //The maximum acceleration allowed in rpm/s
+#define STEPS_PER_REV 200 //steps per revolution of the motor.
+                          //Scales MAX_ACCEL.
+#define MICROS_PER_SECOND 1000000.0
 
 // Timing defines. 
 #define PERIOD_T1  1000000 // period of timer 1 in microseconds. 
@@ -110,7 +112,7 @@ void poll_joystick()
   static unsigned long timer = 0; 
   static int count = 0;
   static int throttle_old = -1;
-  static int last_period = MAX_PERIOD;
+  static double last_period = MAX_PERIOD;
 
   update_mode();  // Set the microstepping mode.
 
@@ -123,12 +125,12 @@ void poll_joystick()
     if(throttle < THROTTLE_MIN) throttle = THROTTLE_MIN;
   
     if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
-      int period = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MAX_PERIOD, MIN_PERIOD);
-      set_step_period(period, false)
+      double period = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MAX_PERIOD, MIN_PERIOD);
+      last_period = set_step_period(period, last_period, false);
     }
     else if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
-      int period = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MAX_PERIOD, MIN_PERIOD);
-      set_step_period(period, true)
+      double period = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MAX_PERIOD, MIN_PERIOD);
+      last_period = set_step_period(period, last_period, true);
 
     }
     else {
@@ -148,18 +150,43 @@ void poll_joystick()
  * This function sets the step waveform period and direction line. 
  * It will enforce the maximum acceleration constraint. 
  * args:
- *    period - the delay between subsiquent step pules in microseconds.
+ *    period - the desired delay between subsiquent step pules in microseconds.
+ *    last_period - the current delay between step pulses in microseconds.
  *    forward - if true the motor will be sent forward. 
  */
-set_step_period(double period, bool forward){
-  const double max_accel = (max_del_omega/60)*mod_mult()*STEPS_PER_REV*(last_period*last_period)/(1000000)
-  if (period > last_period + max_accel) period = last_period + max_accel;
-  if (period < last_period - max_accel) period = last_period - max_accel;
-  last_period = period;
+double set_step_period(double period,double last_period, bool forward){
+  // Use our acceleration limit to find max delta period per second. 
+  const double max_accel_seconds = MICROS_PER_SECOND * (MAX_ACCEL/60.0)*mod_mult()*STEPS_PER_REV*
+                                   ((last_period/MICROS_PER_SECOND)*(last_period/MICROS_PER_SECOND));
+  // Convert to max delta period per polling cycle. 
+  const double max_accel_polling = max_accel_seconds * (PERIOD_POLL/MICROS_PER_SECOND);
+  if (period < (last_period - max_accel_polling)) period = last_period - max_accel_polling;
   Timer1.setPeriod(period); 
-  digitalWrite(PIN_DIR, true); 
+  digitalWrite(PIN_DIR, forward); 
   step_flag = forward;
+  return(period);
 }
+
+/* 
+ *  Gets the current value of the microstepping mode as a base-10 value. 
+ *  This will need to be changed for each chip, though most are just
+ *  2^(mode) or 2^(mode + 1).
+ */
+int mod_mult(){
+  switch(mode){
+    case 0x00:
+      return(2.0);
+    case 0x01:
+      return(4.0);
+    case 0x02:
+      return(8.0);
+    case 0x03:
+      return(16.0);
+    default:
+      return(1.0);
+  }
+}
+
 /*
  * This function should be called twice per second. It will
  * blink the onboard LED according to the current microstepping
