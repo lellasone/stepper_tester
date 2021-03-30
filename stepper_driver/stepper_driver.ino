@@ -43,7 +43,7 @@
 
 // Chip configuration defaults
 #define DEFAULT_MODE 0x02
-#define DEFAULT_CURRENT 1
+#define DEFAULT_CURRENT 1.5
 #define DEFAULT_DECAY HIGH
 #define DEFAULT_DIR false
 
@@ -53,10 +53,10 @@
 #define MODE_MIN 0x00
 #define MODE_MAX 0x03
 
-#define CURRENT_SENSE_RESISTOR 0.5
+#define CURRENT_SENSE_RESISTOR 0.1
 
 #define DEADBAND_HALF 20
-#define DEADBAND_CENTER 490
+#define DEADBAND_CENTER 512
 
 
 
@@ -65,17 +65,17 @@
 #define THROTTLE_MIN 235 
 // Set the scaling endpoints for step frequency as 1/2
 // period in microseconds. (so 50 would be 10khz)
-#define MIN_PERIOD  100
-#define MAX_PERIOD  10000  
-#define MAX_ACCEL   25 //The maximum acceleration allowed in rpm/s
-#define STEPS_PER_REV 200 //steps per revolution of the motor.
+#define MIN_PERIOD  100.0
+#define MAX_PERIOD  10000.0  
+#define MAX_ACCEL   100.0 //The maximum acceleration allowed in rpm/s
+#define STEPS_PER_REV 200.0 //steps per revolution of the motor.
                           //Scales MAX_ACCEL.
 #define MICROS_PER_SECOND 1000000.0
 
 // Timing defines. 
-#define PERIOD_T1  1000000 // period of timer 1 in microseconds. 
-#define PERIOD_LED  500000 // Period of status LED function.
-#define PERIOD_POLL  10000 // Period for joystick input.
+#define PERIOD_T1  1000000.0 // period of timer 1 in microseconds. 
+#define PERIOD_LED  500000.0 // Period of status LED function.
+#define PERIOD_POLL  10000.0 // Period for joystick input.
 
 
 double step_flag = false; // Determine if motor should be moving
@@ -163,7 +163,7 @@ double set_step_period(double period,double last_period, bool forward){
   if (period < (last_period - max_accel_polling)) period = last_period - max_accel_polling;
   Timer1.setPeriod(period); 
   digitalWrite(PIN_DIR, forward); 
-  step_flag = forward;
+  step_flag = true;
   return(period);
 }
 
@@ -175,13 +175,13 @@ double set_step_period(double period,double last_period, bool forward){
 int mod_mult(){
   switch(mode){
     case 0x00:
-      return(2.0);
+      return(1/2.0);
     case 0x01:
-      return(4.0);
+      return(1/4.0);
     case 0x02:
-      return(8.0);
+      return(1/8.0);
     case 0x03:
-      return(16.0);
+      return(1/16.0);
     default:
       return(1.0);
   }
@@ -315,6 +315,7 @@ void set_current(int current){
   if (voltage>2.5) voltage = 2.5;
   int voltage_output = map(voltage, 0, 5, 0 , 255); 
   analogWrite(PIN_VREF, voltage_output); 
+  //analogWrite(PIN_VREF, 255);
 }
 
 /* 
@@ -325,14 +326,4 @@ void set_current(int current){
  */
 void set_enable(bool state){
   digitalWrite(PIN_ENABLE, !(state));
-}
-
-/* 
- *  args:
- *    pps - 
- *    args - if true then turn clockwise. 
- */
-void set_pps(int pps, bool forward){
-  digitalWrite(PIN_DIR, !(forward));
-  compare = pps;
 }
