@@ -72,6 +72,10 @@
                           //Scales MAX_ACCEL.
 #define MICROS_PER_SECOND 1000000.0
 
+// Speed limits. 
+#define MAX_VEL 300
+#define MIN_VEL 60
+
 // Timing defines. 
 #define PERIOD_T1  1000000.0 // period of timer 1 in microseconds. 
 #define PERIOD_LED  500000.0 // Period of status LED function.
@@ -125,11 +129,13 @@ void poll_joystick()
     if(throttle < THROTTLE_MIN) throttle = THROTTLE_MIN;
   
     if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
-      double period = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MAX_PERIOD, MIN_PERIOD);
+      const double vel = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MIN_VEL, MAX_VEL);
+      const double period = MICROS_PER_SECOND*60/(vel*200);
       last_period = set_step_period(period, last_period, false);
     }
     else if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
-      double period = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MAX_PERIOD, MIN_PERIOD);
+      const double vel = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MIN_VEL, MAX_VEL);
+      const double period = MICROS_PER_SECOND*60/(vel*200);
       last_period = set_step_period(period, last_period, true);
 
     }
@@ -160,7 +166,7 @@ double set_step_period(double period,double last_period, bool forward){
                                    ((last_period/MICROS_PER_SECOND)*(last_period/MICROS_PER_SECOND));
   // Convert to max delta period per polling cycle. 
   const double max_accel_polling = max_accel_seconds * (PERIOD_POLL/MICROS_PER_SECOND);
-  if (period < (last_period - max_accel_polling)) period = last_period - max_accel_polling;
+  //if (period < (last_period - max_accel_polling)) period = last_period - max_accel_polling;
   Timer1.setPeriod(period); 
   digitalWrite(PIN_DIR, forward); 
   step_flag = true;
