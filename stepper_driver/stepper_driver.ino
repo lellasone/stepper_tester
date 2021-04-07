@@ -42,7 +42,7 @@
 #define PIN_LED 8
 
 // Chip configuration defaults
-#define DEFAULT_MODE 0x02
+#define DEFAULT_MODE 0x00
 #define DEFAULT_CURRENT 1.5
 #define DEFAULT_DECAY HIGH
 #define DEFAULT_DIR false
@@ -53,28 +53,24 @@
 #define MODE_MIN 0x00
 #define MODE_MAX 0x03
 
-#define CURRENT_SENSE_RESISTOR 0.1
+#define CURRENT_SENSE_RESISTOR 0.3
 
 #define DEADBAND_HALF 20
-#define DEADBAND_CENTER 512
+#define DEADBAND_CENTER 522
 
 
 
 //set the scaling endpoints for the throttle joystick. 
 #define THROTTLE_MAX 825
 #define THROTTLE_MIN 235 
-// Set the scaling endpoints for step frequency as 1/2
-// period in microseconds. (so 50 would be 10khz)
-#define MIN_PERIOD  100.0
-#define MAX_PERIOD  10000.0  
-#define MAX_ACCEL   100.0 //The maximum acceleration allowed in rpm/s
+#define MAX_ACCEL   1 //The maximum acceleration allowed in rps/s
 #define STEPS_PER_REV 200.0 //steps per revolution of the motor.
                           //Scales MAX_ACCEL.
 #define MICROS_PER_SECOND 1000000.0
 
-// Speed limits. 
-#define MAX_VEL 300
-#define MIN_VEL 60
+// Speed limits. (rotations per second)
+#define MAX_VEL 3.2
+#define MIN_VEL 0.2
 
 // Timing defines. 
 #define PERIOD_T1  1000000.0 // period of timer 1 in microseconds. 
@@ -101,7 +97,7 @@ void loop() {
     timer = new_time;
     poll_joystick();
   }
-  delay(PERIOD_POLL/3000);
+  delayMicroseconds(PERIOD_POLL/100);
 };
 
 /* 
@@ -113,10 +109,10 @@ void loop() {
  */
 void poll_joystick()
 {
+
   static unsigned long timer = 0; 
   static int count = 0;
   static int throttle_old = -1;
-  static double last_period = MAX_PERIOD;
 
   update_mode();  // Set the microstepping mode.
 
@@ -130,19 +126,17 @@ void poll_joystick()
   
     if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
       const double vel = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MIN_VEL, MAX_VEL);
-      const double period = MICROS_PER_SECOND*60/(vel*200);
-      last_period = set_step_period(period, last_period, false);
+      set_velocity(vel, false);
     }
     else if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
       const double vel = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MIN_VEL, MAX_VEL);
-      const double period = MICROS_PER_SECOND*60/(vel*200);
-      last_period = set_step_period(period, last_period, true);
-
+      set_velocity(vel, true);
     }
     else {
       step_flag = false;
     }
   }
+  throttle_old = throttle;
   if(count>PERIOD_LED/PERIOD_POLL)
   {
     show_mode();
@@ -152,22 +146,32 @@ void poll_joystick()
 
 }
 
+/* 
+ *  This function enforces the acceleration limit on velocity
+ *  changes and then sets the step frequency and direction pin. 
+ *  Note: Accelerations are in terms of rotations/(minute * second)
+ *  args:
+ *    vel - the new velocity to set. 
+ *    forward - if true the direction will be set forward. 
+ */
+void set_velocity(double vel, double forward){
+  static double old_vel = 0;
+  const double accel_limit = MAX_ACCEL / (MICROS_PER_SECOND / PERIOD_POLL);
+  if (vel > old_vel + accel_limit) vel = old_vel + accel_limit;
+  const double period = MICROS_PER_SECOND/(vel*STEPS_PER_REV*mod_mult());
+  set_step_period(period, forward);
+  old_vel = vel;
+}
+
 /*
  * This function sets the step waveform period and direction line. 
  * It will enforce the maximum acceleration constraint. 
  * args:
  *    period - the desired delay between subsiquent step pules in microseconds.
- *    last_period - the current delay between step pulses in microseconds.
  *    forward - if true the motor will be sent forward. 
  */
-double set_step_period(double period,double last_period, bool forward){
-  // Use our acceleration limit to find max delta period per second. 
-  const double max_accel_seconds = MICROS_PER_SECOND * (MAX_ACCEL/60.0)*mod_mult()*STEPS_PER_REV*
-                                   ((last_period/MICROS_PER_SECOND)*(last_period/MICROS_PER_SECOND));
-  // Convert to max delta period per polling cycle. 
-  const double max_accel_polling = max_accel_seconds * (PERIOD_POLL/MICROS_PER_SECOND);
-  //if (period < (last_period - max_accel_polling)) period = last_period - max_accel_polling;
-  Timer1.setPeriod(period); 
+double set_step_period(double period, bool forward){
+  Timer1.setPeriod(period/2); // 1/2 for interrupt design
   digitalWrite(PIN_DIR, forward); 
   step_flag = true;
   return(period);
@@ -181,13 +185,13 @@ double set_step_period(double period,double last_period, bool forward){
 int mod_mult(){
   switch(mode){
     case 0x00:
-      return(1/2.0);
+      return(2.0);
     case 0x01:
-      return(1/4.0);
+      return(4.0);
     case 0x02:
-      return(1/8.0);
+      return(8.0);
     case 0x03:
-      return(1/16.0);
+      return(16.0);
     default:
       return(1.0);
   }
@@ -317,11 +321,11 @@ void set_current(int current){
   if(current < CURRENT_MIN) current = 0; 
   if(current > CURRENT_MAX) current = CURRENT_MAX; 
   // From the data sheet
-  int voltage = current*2.5*sqrt(2)*(0.30 + CURRENT_SENSE_RESISTOR)/.325; 
+  int voltage = current*2.5*sqrt(2)*(0.030 + CURRENT_SENSE_RESISTOR)/.325; 
   if (voltage>2.5) voltage = 2.5;
   int voltage_output = map(voltage, 0, 5, 0 , 255); 
-  analogWrite(PIN_VREF, voltage_output); 
-  //analogWrite(PIN_VREF, 255);
+  //analogWrite(PIN_VREF, voltage_output); 
+  analogWrite(PIN_VREF, 100);
 }
 
 /* 
