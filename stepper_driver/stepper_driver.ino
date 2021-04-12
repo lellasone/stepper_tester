@@ -42,8 +42,8 @@
 #define PIN_LED 8
 
 // Chip configuration defaults
-#define DEFAULT_MODE 0x00
-#define DEFAULT_CURRENT 1.5
+#define DEFAULT_MODE 0x03
+#define DEFAULT_CURRENT 1.7
 #define DEFAULT_DECAY HIGH
 #define DEFAULT_DIR false
 
@@ -53,7 +53,7 @@
 #define MODE_MIN 0x00
 #define MODE_MAX 0x03
 
-#define CURRENT_SENSE_RESISTOR 0.3
+#define CURRENT_SENSE_RESISTOR 0.1
 
 #define DEADBAND_HALF 20
 #define DEADBAND_CENTER 522
@@ -63,14 +63,14 @@
 //set the scaling endpoints for the throttle joystick. 
 #define THROTTLE_MAX 825
 #define THROTTLE_MIN 235 
-#define MAX_ACCEL   1 //The maximum acceleration allowed in rps/s
+#define MAX_ACCEL   .25 //The maximum acceleration allowed in rps/s
 #define STEPS_PER_REV 200.0 //steps per revolution of the motor.
                           //Scales MAX_ACCEL.
 #define MICROS_PER_SECOND 1000000.0
 
 // Speed limits. (rotations per second)
-#define MAX_VEL 3.2
-#define MIN_VEL 0.2
+#define MAX_VEL 1.5
+#define MIN_VEL 0.1
 
 // Timing defines. 
 #define PERIOD_T1  1000000.0 // period of timer 1 in microseconds. 
@@ -97,7 +97,7 @@ void loop() {
     timer = new_time;
     poll_joystick();
   }
-  delayMicroseconds(PERIOD_POLL/100);
+  delayMicroseconds(PERIOD_POLL/5);
 };
 
 /* 
@@ -121,16 +121,17 @@ void poll_joystick()
   int throttle = analogRead(PIN_THROTTLE); 
   if (throttle_old != throttle)
   {
-    if(throttle > THROTTLE_MAX) throttle = THROTTLE_MAX;
-    if(throttle < THROTTLE_MIN) throttle = THROTTLE_MIN;
+    if(throttle > THROTTLE_MAX) throttle = THROTTLE_MAX-1;
   
     if(throttle < DEADBAND_CENTER - DEADBAND_HALF){
-      const double vel = map(throttle, DEADBAND_CENTER - DEADBAND_HALF, THROTTLE_MIN, MIN_VEL, MAX_VEL);
+      if(throttle < THROTTLE_MIN) throttle = THROTTLE_MIN+1;
+      throttle = THROTTLE_MIN;
+      double vel = map(throttle, DEADBAND_CENTER, THROTTLE_MIN, MIN_VEL, MAX_VEL);
       set_velocity(vel, false);
     }
     else if (throttle > DEADBAND_CENTER + DEADBAND_HALF){
-      const double vel = map(throttle, DEADBAND_CENTER + DEADBAND_HALF, THROTTLE_MAX, MIN_VEL, MAX_VEL);
-      set_velocity(vel, true);
+      double vel = map(throttle, DEADBAND_CENTER, THROTTLE_MAX, MIN_VEL, MAX_VEL);
+      set_velocity(MAX_VEL, true);
     }
     else {
       step_flag = false;
@@ -143,7 +144,6 @@ void poll_joystick()
     count = 0;
   }
   count++;
-
 }
 
 /* 
@@ -156,6 +156,7 @@ void poll_joystick()
  */
 void set_velocity(double vel, double forward){
   static double old_vel = 0;
+  if (!step_flag) old_vel = 0;
   const double accel_limit = MAX_ACCEL / (MICROS_PER_SECOND / PERIOD_POLL);
   if (vel > old_vel + accel_limit) vel = old_vel + accel_limit;
   const double period = MICROS_PER_SECOND/(vel*STEPS_PER_REV*mod_mult());
@@ -220,11 +221,11 @@ void show_mode(){
   if (count > MODE_MAX * 2){
     count = 0;
   }
-
-
-  
 }
 
+/* This flips the motor step pin. It should be called at twice the
+ *  desired motor step frequency. 
+ */
 void step_motor(){
   if(step_flag) digitalWrite(PIN_STEP, digitalRead(PIN_STEP) ^ 1);
 }
@@ -263,8 +264,6 @@ void set_pins(){
   set_mode(DEFAULT_MODE);
   set_current(DEFAULT_CURRENT); 
   digitalWrite(PIN_DECAY, DEFAULT_DECAY);
-
-  
 }
 
 /* 
@@ -317,15 +316,14 @@ void set_mode(byte mode){
  *  args: 
  *    current - desired current setpoint in amps. 
  */
-void set_current(int current){
+void set_current(double current){
   if(current < CURRENT_MIN) current = 0; 
   if(current > CURRENT_MAX) current = CURRENT_MAX; 
   // From the data sheet
   int voltage = current*2.5*sqrt(2)*(0.030 + CURRENT_SENSE_RESISTOR)/.325; 
   if (voltage>2.5) voltage = 2.5;
   int voltage_output = map(voltage, 0, 5, 0 , 255); 
-  //analogWrite(PIN_VREF, voltage_output); 
-  analogWrite(PIN_VREF, 100);
+  analogWrite(PIN_VREF, voltage_output); 
 }
 
 /* 
